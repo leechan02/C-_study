@@ -1,0 +1,4 @@
+NAME = 
+SRCS = 
+
+-include ../makefile
