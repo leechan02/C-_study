@@ -1,133 +1,127 @@
-# README.md
+<h1 align="center">
+    🌐 webserv
+</h1>
 
-# Webserv
+<h3 align="center">
+	<a href="#-about-the-project">프로젝트 소개</a>
+	<span> · </span>
+	<a href="#%EF%B8%8F-usage">사용법</a>
+</h3>
 
-**HTTP/1.1 compatible web server in C++ using I/O multiplexing.**
+## 📘 프로젝트 소개
 
-## Motivation and Considerations
+`webserv`는 **HTTP/1.1** 프로토콜을 준수하는 웹 서버를 **C++98**로 구현하는 프로젝트입니다. 이 프로젝트는 **I/O 멀티플렉싱**과 **비동기 소켓 통신**의 개념을 바탕으로 실제 웹 서버의 동작 원리를 이해하고 구현하는 데 중점을 두고 있습니다.
 
-Webserv is crafted as part of the challenging curriculum at School 42, focusing on developing a HTTP server in C++ 98. Key requirements include:
+## 💡 주요 목표
 
-- Non-blocking socket read/write using `poll()`(or equivalent).
-- Ensuring the server never hangs indefinitely.
-- Ability to serve a fully static website.
-- Support for GET, POST, and DELETE methods.
-- Capability to listen to multiple ports.
-These elements combine to create a robust, efficient web server.
+- **HTTP/1.1 구현**: GET, POST, DELETE 메소드 지원
+- **I/O 멀티플렉싱**: `poll()`을 사용하여 여러 클라이언트 연결을 동시에 처리
+- **정적 웹사이트 서비스**: HTML 페이지를 제공하는 정적 웹사이트 서비스
+- **다중 포트 리스닝**: 여러 포트에서 동시 요청 처리
+- **비동기 소켓 통신**: 소켓 비동기 처리를 통해 서버 성능 향상
 
-## Technologies Used
+## 📂 주요 개념
 
-- **Languages**: C++ 98, Makefile
-- **Web Technologies**: HTML, CSS
-- **Additional Tools**: Python
-- **Programming Concepts**: Object Oriented Programming, Non-block I/O, I/O Multiplexing (kqueue), HTTP/1.1
+| 개념 | 설명 |
+|:------------|:------------|
+| `I/O 멀티플렉싱` | `poll()` 또는 `kqueue()`를 이용해 여러 클라이언트의 요청을 비동기적으로 처리 |
+| `비동기 소켓 통신` | 블로킹 없이 데이터를 송수신하여 서버가 여러 작업을 동시에 처리할 수 있게 함 |
+| `HTTP/1.1` | 웹 서버가 클라이언트 요청을 처리할 때 사용하는 프로토콜로, 지속 연결, 파이프라이닝, 쿠키 등을 지원 |
+| `비동기 처리` | 클라이언트 요청을 처리하는 동안 서버가 블로킹되지 않고 다른 작업을 수행할 수 있는 기술 |
+| `Nginx 유사 설정` | Nginx와 유사한 구조의 설정 파일 파싱 및 처리 |
 
-## Implementation Details
+## 📊 주요 기능
 
-### Architecture
+### 1. **비동기 I/O 멀티플렉싱 기반 아키텍처**
+`poll()`를 사용해 서버는 여러 클라이언트 소켓과 이벤트를 감시하며, 이벤트 발생 시 처리하는 구조로 설계되었습니다. 이를 통해 비동기적으로 다수의 클라이언트를 효율적으로 처리합니다.
 
-### Configuration
+### 2. **Nginx 스타일 설정 파일**
+서버 설정은 Nginx와 유사하게 `.conf` 파일을 기반으로 이루어집니다. 설정 파일을 파싱하여 여러 포트 리스닝, 라우팅, 에러 페이지 설정 등을 처리합니다.
 
-```jsx
+```conf
 http {
-	error_page 404 500 413 ./www/error/default.html;
-	index index.html ;
-	autoindex on;
-	server {
-		server_name localhost:4000;
-		listen  4000;
-		location / {
-			alias ./www/example/;
-			limit_except POST GET DELETE;
-			
-			location /box/ {
-				limit_except GET;
-			}
-		}
-		location /abc/ {
-			alias ./www/example/;
-		}
-	}
-	server {
-		listen 42;
-		client_max_body_size 100;
-		location / {
-			alias ./www/example/;
-		}
-	}
+    error_page 404 500 413 ./www/error/default.html;
+    index index.html ;
+    autoindex on;
+    server {
+        listen 4000;
+        location / {
+            alias ./www/example/;
+            limit_except POST GET DELETE;
+        }
+        location /box/ {
+            limit_except GET;
+        }
+    }
+    server {
+        listen 42;
+        client_max_body_size 100;
+        location / {
+            alias ./www/example/;
+        }
+    }
 }
 ```
 
-| | |
-|:------------|:------------|
-| ![conf_BU](https://github.com/Aprilistic/webserv/assets/70141850/9cfa9fe6-2863-4f8c-b0a3-ca3a2740906e)<br>**A Bottom-up Approach**<br>In the initialization process, a web server parses the configuration in a tree shape. This allows each location configuration to override specific settings like Nginx. Regex is partially implemented. `(*, $)`<br>This is implemented in `Config.{hpp, cpp}` in less than 100 lines. | ![conf_TD](https://github.com/Aprilistic/webserv/assets/70141850/1f6a16a0-2cfb-437b-8e9f-410a7231de7c)<br>**A Top-down Approach**<br>After making the tree, the configuration is being mapped into `std::<map>`. This approach is to optimize the configuration access time of each HTTP request. The search is processed in several steps:<br>1. Port<br>2. Hostname<br>3. Location<br>By using this method, the access time is reduced from $O(N)$ to $O(log N)$.<br>This is implemented in `ConfigMap.{hpp, cpp}` |
+### 3. **HTTP/1.1 구현**
+GET, POST, DELETE 메소드 지원과 함께 HTTP 파이프라이닝 및 쿠키 처리를 구현했습니다.
 
+### 4. **다중 포트 리스닝**
+서버는 여러 포트에서 동시에 리스닝할 수 있으며, 각 포트에 대해 개별 설정을 적용할 수 있습니다.
 
+## 🧠 프로그램 동작
 
+### 1. **프로그램 실행 방법**
 
-### Event-Driven Architecture (I/O Multiplexing)
+다음 명령어를 사용하여 `webserv`를 실행할 수 있습니다:
 
-**Flowchart**
-![flow_normal](https://github.com/Aprilistic/webserv/assets/70141850/de80c768-c20d-4720-a9d4-26b9c586ed36)
+```bash
+./webserv configs/example.conf
+```
 
+### 2. **출력**
 
-This is how this program flows. Server, client sockets, and children’s PID are registered to kqueue. 
+서버가 실행되면 클라이언트 요청을 처리하는 로그가 출력됩니다.
 
-| | |
-|:------------:|:------------|
-| <img src="https://github.com/Aprilistic/webserv/assets/70141850/7444669d-2314-4b32-b502-4e7d16157e71" width="1500"> | `class Server, Connection, CGI` inherits `class IEventHandler` which has `virtual void EventHandler()`. When an event is caught, it calls `EventHandler()` thus calling the corresponding function in each class. |
+```bash
+Client connected on port 4000
+GET /index.html HTTP/1.1
+```
 
+## 🛠️ 주요 함수 및 기능
 
+### 1. **핵심 함수**
 
-## Key Features
+- **poll()**: 여러 파일 디스크립터를 감시하여 이벤트가 발생하면 처리합니다.
+- **socket()**: 클라이언트와의 연결을 위한 소켓을 생성합니다.
+- **bind()**: 서버 소켓을 특정 포트에 바인딩합니다.
+- **accept()**: 클라이언트 연결을 수락합니다.
+- **read() / write()**: 클라이언트로부터 요청을 읽고 응답을 보냅니다.
 
-- **HTTP/1.1 Compliant**: Supports GET, POST, and DELETE methods, along with features like HTTP pipelining and cookies.
-- **Nginx-like Configuration**: Tree-shaped parsing for nested bracket `{}` configurations, resembling Nginx.
-- **Efficient Configuration Access**: A sophisticated mapping system reduces access time from O(N) to O(log N).
+### 2. **파일 처리 함수**
 
-## Challenges and Solutions
+- **open()**: 파일을 열고 그 내용을 읽습니다.
+- **read()**: 파일로부터 데이터를 읽어들입니다.
+- **write()**: 응답을 클라이언트에 전송합니다.
 
-- **Class Destruction**: Implemented smart pointers for efficient object management, adapting to C++ 98's limitations.
-- **Forking and Multithreading**: Refined our approach to meet project requirements, gaining insights into process creation and management in Linux.
-- **Parsing Complexity**: Developed efficient parsing strategies for both configuration files and HTTP requests. For configuration parsing, we've used bitmask to make the logic as simple as possible. For HTTP request paring, we used Nekipelov’s httpparser and modified it to fit our usage. That helped us a lot. Thank you!
+## 📋 중요한 개념
 
+### 1. **비동기 처리와 I/O 멀티플렉싱**
+`poll()` 또는 `kqueue()`를 이용해 다수의 클라이언트 요청을 동시에 처리합니다. 비동기 처리를 통해 서버는 블로킹 없이 효율적으로 클라이언트의 요청을 처리할 수 있습니다.
 
-## Installation and Usage
+### 2. **Nginx 유사한 설정 파일 파싱**
+Nginx와 유사한 트리 구조의 설정 파일을 파싱하여 서버 설정을 동적으로 관리합니다. 이를 통해 특정 경로별로 다른 설정을 적용할 수 있습니다.
 
-Ensure you have a macOS environment and a C++ 98 compiler.
+## 🧑‍🤝‍🧑 팀
 
-1. Clone the repository: `git clone [repository link]`
-2. Compile the project: `make re` at the root directory.
-3. Run the server: `./webserv configs/example.conf`
+저는 서버의 아키텍처 설계 및 비동기 통신 구현을 담당하였고, 다른 팀원은 HTTP 프로토콜 처리와 설정 파일 파싱을 담당했습니다.
 
-| | |
-|:------------|:------------|
-|<img width="1500" alt="Screen Shot 2023-11-17 at 5 03 56 PM" src="https://github.com/Aprilistic/webserv/assets/70141850/6b71d699-e0bb-40cf-afe7-26f002839b51">|<img width="1500" alt="Screen Shot 2023-11-17 at 5 11 50 PM" src="https://github.com/Aprilistic/webserv/assets/70141850/9627ec1f-00ec-4578-a759-8aaf13e5fc89">
-|
+- **비동기 I/O**: `poll()`을 사용한 I/O 멀티플렉싱을 통해 서버 성능을 최적화했습니다.
+- **HTTP 요청 처리**: GET, POST, DELETE 메소드 및 HTTP/1.1 파이프라이닝을 구현했습니다.
+- **설정 파일 파싱**: Nginx 스타일의 설정 파일 파싱을 구현하여 서버 설정을 동적으로 처리할 수 있게 했습니다.
 
+## 📚 참고 자료
 
-## Results and Discussion
-
-This project was a deep dive into web server mechanics, leveraging C++ with OOP and I/O multiplexing. Our journey was marked by constant problem-solving and code refinement, enhancing our collaboration and communication skills. Despite some initial challenges, the final product is a testament to our perseverance and commitment to learning.
-
-## Acknowledgements
-
-**Nginx**
-
-[GitHub - nginx/nginx](https://github.com/nginx/nginx)
-
-**RFC 2616**
-
-[RFC 2616: Hypertext Transfer Protocol -- HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
-
-**HTTP Parser**
-
-[GitHub - nekipelov/httpparser: HTTP request, response and urls parser](https://github.com/nekipelov/httpparser)
-
-**Kernel Queue**
-
-[Kernel Queue: The Complete Guide On The Most Essential Technology For High-Performance I/O](https://habr.com/en/articles/600123/)
-
-## License
-
-MIT License
+- [RFC 2616: Hypertext Transfer Protocol -- HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc2616)
+- [Nginx 공식 문서](https://nginx.org/en/docs/)
+- [Kernel Queue](https://habr.com/en/articles/600123/)
