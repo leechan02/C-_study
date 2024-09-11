@@ -1,0 +1,90 @@
+Here is a draft for your README file for **CPP_Module/module00** based on the structure and content you requested.
+
+---
+
+<h1 align="center">
+    🧑‍💻 C++ Module 00
+</h1>
+
+<h3 align="center">
+	<a href="#-about-the-project">프로젝트 소개</a>
+	<span> · </span>
+	<a href="#%EF%B8%8F-usage">사용법</a>
+</h3>
+
+## 📘 프로젝트 소개
+
+Module 00은 **C++** 기초를 다루는 프로젝트로, C++의 기본적인 문법과 클래스를 학습하기 위한 내용을 담고 있습니다. 이 모듈에서는 **입출력 처리**, **객체지향 프로그래밍 기초**, 그리고 **클래스 구현 방법**을 익힙니다.
+
+## 💡 주요 목표
+
+- **cin, cout 객체의 이해**: C++에서의 입출력 객체 다루기
+- **클래스 작성법 학습**: 기본 클래스 설계와 구현
+- **코드 컨벤션 준수**: 비표준 사용을 피하고 깔끔한 코드를 작성하는 연습
+
+## 📂 주요 개념
+
+| 개념 | 설명 |
+|:------------|:------------|
+| cin / cout | C++의 표준 입력과 출력 스트림 객체 |
+| 클래스 | 객체지향 프로그래밍에서 사용되는 기본 단위 |
+| 함수 오버로딩 | 같은 이름의 함수가 여러 가지 매개변수를 받을 수 있게 정의 |
+| 객체지향 프로그래밍 | 데이터를 객체로 묶어 처리하는 프로그래밍 패러다임 |
+| 네임스페이스 | 코드의 이름 충돌을 방지하기 위한 구조 |
+
+## 📊 주요 기능
+
+### 1. **C++ 입출력 처리**
+
+Module 00에서는 C++의 기본 입출력 방식인 `cin`, `cout`을 이용한 입력 및 출력 처리를 학습합니다. `iostream` 라이브러리를 사용하여 표준 입출력 스트림을 활용하는 법을 배웁니다.
+
+```cpp
+#include <iostream>
+
+int main() {
+    int num;
+    std::cout << "Enter a number: ";
+    std::cin >> num;
+    std::cout << "The number you entered is: " << num << std::endl;
+    return 0;
+}
+```
+
+### 2. **클래스와 객체**
+
+클래스를 정의하고 객체를 생성하는 법을 학습합니다. 이를 통해 객체지향 프로그래밍의 기초를 다지며, 멤버 변수와 멤버 함수를 통해 객체의 동작을 구현합니다.
+
+```cpp
+class Person {
+public:
+    std::string name;
+    int age;
+    void introduce() {
+        std::cout << "My name is " << name << " and I am " << age << " years old." << std::endl;
+    }
+};
+```
+
+### 3. **객체와 함수 오버로딩**
+
+클래스 내에서 함수 오버로딩을 구현하여 같은 이름의 함수가 여러 매개변수를 처리할 수 있도록 설정할 수 있습니다.
+
+```cpp
+int add(int a, int b) {
+    return a + b;
+}
+
+double add(double a, double b) {
+    return a + b;
+}
+```
+
+### 4. **컨벤션 준수 및 표준 활용**
+
+모듈 내의 모든 구현은 C++의 표준 라이브러리를 활용하며, 비표준 코드 사용을 피하는 것을 목표로 합니다. 또한, 코드의 일관성과 가독성을 유지하기 위한 컨벤션을 준수합니다.
+
+## 🛠️ 주요 함수 및 기능
+
+- **toupper()**: `cctype` 헤더의 `toupper()` 함수를 사용하여 문자를 대문자로 변환합니다.
+- **std::put_time()**: 특정 형식에 맞춰 날짜와 시간을 출력하는 기능을 제공합니다.
+- **std::getline()**: 입력 스트림에서 한 줄을 읽어오는 함수로, 버퍼 처리와 입력 스트림을 함께 다룹니다.
