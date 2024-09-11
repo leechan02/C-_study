@@ -1,7 +1,3 @@
-Here is a draft for your README file for **CPP_Module/module00** based on the structure and content you requested.
-
----
-
 <h1 align="center">
     🧑‍💻 C++ Module 00
 </h1>
